@@ -1,15 +1,16 @@
 /* eslint-disable no-console */
 
 
-import express from 'express';
+ 
 import type { Server } from 'http';
 import mongoose from 'mongoose';
-import { envVars } from './config/env';
+import { envVars } from './app/config/env';
+import { app } from './app';
 
 
 let server:Server;
 
-const app = express();
+
 
 
 const main = async() => {
