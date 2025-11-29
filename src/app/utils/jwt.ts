@@ -8,3 +8,9 @@ export const generateToken = (payload:JwtPayload,secret:string,expiresIn:string)
        return token;
 }
 
+
+export const verifyToken = (token:string,secret:string) =>{
+       const verifyAccessToken = jwt.verify(token,secret);
+
+       return verifyAccessToken;
+}
