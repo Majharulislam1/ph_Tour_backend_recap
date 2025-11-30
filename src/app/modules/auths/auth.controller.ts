@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendRespons";
-import { BAD_REQUEST, CREATED } from "http-status-codes";
+import { BAD_REQUEST, CREATED, OK } from "http-status-codes";
 import { AuthService } from "./auths.service";
 import AppError from "../../errorHelpers/AppError";
 import { setAuthTokens } from "../../utils/setCookie";
@@ -61,9 +61,34 @@ const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: N
 })
 
 
+const logOut = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+     res.clearCookie("accessToken", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax"
+     })
+     res.clearCookie("refreshToken", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax"
+     })
+
+
+     sendResponse(res, {
+          success: true,
+          statusCode: OK,
+          message: "  Successfully Logout",
+          data: null
+     })
+
+})
+
+
 
 
 export const AuthControllers = {
      crediantialController,
-     getNewAccessToken
+     getNewAccessToken,
+     logOut
 }
