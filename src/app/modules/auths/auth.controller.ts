@@ -6,6 +6,7 @@ import { BAD_REQUEST, CREATED, OK } from "http-status-codes";
 import { AuthService } from "./auths.service";
 import AppError from "../../errorHelpers/AppError";
 import { setAuthTokens } from "../../utils/setCookie";
+import { JwtPayload } from "jsonwebtoken";
 
 
 const crediantialController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -85,10 +86,30 @@ const logOut = catchAsync(async (req: Request, res: Response, next: NextFunction
 })
 
 
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+     const newPassword = req.body.newPassword;
+     const oldPassword = req.body.oldPassword;
+     const decodedToken = req.user
+
+     await AuthService.resetPasswordService(oldPassword,newPassword,decodedToken as JwtPayload);
+
+     sendResponse(res, {
+          success: true,
+          statusCode: OK,
+          message: "  Successfully Logout",
+          data: null
+     })
+
+})
+
+
+
 
 
 export const AuthControllers = {
      crediantialController,
      getNewAccessToken,
-     logOut
+     logOut,
+     resetPassword
 }
