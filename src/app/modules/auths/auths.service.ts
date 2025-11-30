@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BAD_REQUEST } from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { IUser } from "../User/user.interface";
@@ -7,6 +8,7 @@ import bcrypt from "bcryptjs";
  
 import { generateToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
+import { createNewAccessTokensR, createUserTokens } from "../../utils/createUserToken";
 
 const crediantialLogin = async (payload: Partial<IUser>) => {
  
@@ -24,20 +26,42 @@ const crediantialLogin = async (payload: Partial<IUser>) => {
          throw new AppError(BAD_REQUEST,"Password doesn't match");
     }
 
-    const jwtPalyload = {
-         userId:isUserExist._id,
-         email:isUserExist.email,
-         role:isUserExist.role,
-    }
+//     const jwtPalyload = {
+//          userId:isUserExist._id,
+//          email:isUserExist.email,
+//          role:isUserExist.role,
+//     }
 
-    const accessToken = generateToken(jwtPalyload,envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES);
+//     const accessToken = generateToken(jwtPalyload,envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES);
+//     const refreshToken = generateToken(jwtPalyload,envVars.JWT_REFRESH_SECRET,envVars.JWT_REFRESH_EXPIRES);
+
+    const userToken = createUserTokens(isUserExist);
+    
+    const {password:pass, ...rest} = isUserExist.toObject();
+     
+     
+
 
     return {
-         accessToken
+         accessToken:userToken.accessToken,
+         refreshToken:userToken.refreshToken,
+         user:rest
     }
 }
 
 
+
+export const getNewAccessTokens = async (refreshToken:string) => {
+         
+       const newAccesToken = await createNewAccessTokensR(refreshToken);
+
+       return {
+           accessToken : newAccesToken
+       }
+
+ }
+
 export const AuthService = {
-     crediantialLogin
+     crediantialLogin,
+     getNewAccessTokens
 }
