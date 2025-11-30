@@ -73,7 +73,7 @@ const updateUserControllers = catchAsync(async (req: Request, res: Response, nex
     const decodedToken = req.user;
      
 
-    const user = await UserService.updateUser(userId,payload,decodedToken);
+    const user = await UserService.updateUser(userId,payload,decodedToken as JwtPayload );
 
      
     
