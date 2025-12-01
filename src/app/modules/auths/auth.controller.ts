@@ -2,11 +2,13 @@
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendRespons";
-import { BAD_REQUEST, CREATED, OK } from "http-status-codes";
+import { BAD_REQUEST, CREATED, NOT_FOUND, OK } from "http-status-codes";
 import { AuthService } from "./auths.service";
 import AppError from "../../errorHelpers/AppError";
 import { setAuthTokens } from "../../utils/setCookie";
 import { JwtPayload } from "jsonwebtoken";
+import { createUserTokens } from "../../utils/createUserToken";
+import { envVars } from "../../config/env";
 
 
 const crediantialController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -104,6 +106,26 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
 })
 
 
+const googleCallBackController = catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
+      let redirectTo = req.query.state ? req.query.state as string : ""
+
+      if(redirectTo.startsWith("/")){
+          redirectTo = redirectTo.slice(1)
+      }
+
+      const user = req.user;
+
+      if(!user) {
+           throw new AppError(NOT_FOUND,"User not found");
+      }
+
+      const tokenInfo = createUserTokens(user);
+      setAuthTokens(res,tokenInfo);
+
+      res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`)
+})
+
+
 
 
 
@@ -111,5 +133,6 @@ export const AuthControllers = {
      crediantialController,
      getNewAccessToken,
      logOut,
-     resetPassword
+     resetPassword,
+     googleCallBackController
 }

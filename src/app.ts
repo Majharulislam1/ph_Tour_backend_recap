@@ -1,13 +1,14 @@
 
 import express, { Request, Response } from "express";
 import cors from "cors"
-
+import './app/config/passport';
 import { router } from "./app/Routes";
 import { globalErrorHnadler } from "./app/middlewares/globalErrorHandler";
 import NotFoundRoutes from "./app/middlewares/NotFounds";
-
+import expressSession from "express-session";
 import cookieParser from 'cookie-parser'
 import passport from "passport";
+import { envVars } from "./app/config/env";
 
 
 export const app = express();
@@ -17,8 +18,10 @@ app.use(expressSession({
     resave: false,
     saveUninitialized: false
 }))
+
 app.use(passport.initialize())
 app.use(passport.session())
+
 
 app.use(cookieParser())
 app.use(express.json());
