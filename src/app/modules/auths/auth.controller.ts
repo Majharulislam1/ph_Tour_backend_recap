@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
@@ -9,34 +10,52 @@ import { setAuthTokens } from "../../utils/setCookie";
 import { JwtPayload } from "jsonwebtoken";
 import { createUserTokens } from "../../utils/createUserToken";
 import { envVars } from "../../config/env";
+import passport from "passport";
 
 
 const crediantialController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
 
 
-     const user = await AuthService.crediantialLogin(req.body);
+     // const user = await AuthService.crediantialLogin(req.body); // for custom credentails
 
-     //      res.cookie("accessToken", user.accessToken, {
-     //         httpOnly: true,
-     //         secure: false
-     //     })
+     // passport credentails
 
+     passport.authenticate("local", async (err: any, user: any, info: any) => {
+          if (err) {
+               return next(new AppError(401, info.message));
+          }
 
-     //     res.cookie("refreshToken", user.refreshToken, {
-     //         httpOnly: true,
-     //         secure: false,
-     //     })
-
-     setAuthTokens(res, user);
+          if (!user) {
+               return next(new AppError(401, info.message));
+          }
 
 
-     sendResponse(res, {
-          success: true,
-          statusCode: CREATED,
-          message: "User Successfully Login",
-          data: user
-     })
+          const userTokens = await createUserTokens(user);
+
+          const { password: pass, ...rest } = user.toObject();
+
+          setAuthTokens(res, user);
+
+
+          sendResponse(res, {
+               success: true,
+               statusCode: CREATED,
+               message: "User Successfully Login",
+               data: {
+                    accessToken: userTokens.accessToken,
+                    refreshToken: userTokens.refreshToken,
+                    user: rest
+               }
+          })
+
+          
+     })(req, res, next)
+
+
+
+
+
 
 })
 
@@ -94,7 +113,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
      const oldPassword = req.body.oldPassword;
      const decodedToken = req.user
 
-     await AuthService.resetPasswordService(oldPassword,newPassword,decodedToken as JwtPayload);
+     await AuthService.resetPasswordService(oldPassword, newPassword, decodedToken as JwtPayload);
 
      sendResponse(res, {
           success: true,
@@ -106,23 +125,23 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
 })
 
 
-const googleCallBackController = catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
-      let redirectTo = req.query.state ? req.query.state as string : ""
+const googleCallBackController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+     let redirectTo = req.query.state ? req.query.state as string : ""
 
-      if(redirectTo.startsWith("/")){
+     if (redirectTo.startsWith("/")) {
           redirectTo = redirectTo.slice(1)
-      }
+     }
 
-      const user = req.user;
+     const user = req.user;
 
-      if(!user) {
-           throw new AppError(NOT_FOUND,"User not found");
-      }
+     if (!user) {
+          throw new AppError(NOT_FOUND, "User not found");
+     }
 
-      const tokenInfo = createUserTokens(user);
-      setAuthTokens(res,tokenInfo);
+     const tokenInfo = createUserTokens(user);
+     setAuthTokens(res, tokenInfo);
 
-      res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`)
+     res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`)
 })
 
 
