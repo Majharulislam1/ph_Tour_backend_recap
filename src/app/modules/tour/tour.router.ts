@@ -26,3 +26,13 @@ TourRouter.post("/create-tour-type",
     checkAuth(Role.ADMIN,Role.SUPER_ADMIN),
     validateRequest(createTourTypeZodSchema),
     TourController.createTourType) 
+
+TourRouter.get('/tour-type',TourController.getAllTourTypes);
+
+TourRouter.patch('/tour-type/:id', checkAuth(Role.ADMIN,Role.SUPER_ADMIN),
+    validateRequest(createTourTypeZodSchema),TourController.updateTourType);
+
+TourRouter.delete("/tour-type/:id",checkAuth(Role.ADMIN,Role.SUPER_ADMIN),TourController.deleteTourType);
+
+
+
