@@ -3,12 +3,13 @@ import express, { Request, Response } from "express";
 import cors from "cors"
 import './app/config/passport';
 import { router } from "./app/Routes";
-import { globalErrorHnadler } from "./app/middlewares/globalErrorHandler";
+ 
 import NotFoundRoutes from "./app/middlewares/NotFounds";
 import expressSession from "express-session";
 import cookieParser from 'cookie-parser'
 import passport from "passport";
 import { envVars } from "./app/config/env";
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 
 
 export const app = express();
@@ -41,5 +42,5 @@ app.get('/',(req:Request,res:Response)=>{
 
 
 
-app.use(globalErrorHnadler);
+app.use(globalErrorHandler);
 app.use(NotFoundRoutes);
