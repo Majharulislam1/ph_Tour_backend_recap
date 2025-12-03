@@ -6,10 +6,8 @@ import { DivisionService } from "./division.service";
 
 const createDivision = catchAsync(async (req: Request, res: Response) => {
 
-     
-
     const result = await DivisionService.createDivisionService(req.body);
-
+    
     sendResponse(res, {
         statusCode: 201,
         success: true,
