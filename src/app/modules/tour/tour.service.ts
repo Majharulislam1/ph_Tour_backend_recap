@@ -30,13 +30,29 @@ const createTour = async (payload: ITour) => {
 
 // getall tours
 
-const getAllTours = async () => {
-    const data = await Tour.find({});
+const getAllTours = async (query:Record<string,string>) => {
+ 
+     
+
+
+    const data = await Tour.find({
+        //  title:{$regex:query.searchTerm, $options:'i'} single field search
+
+        $or:[
+             {title:{$regex:query.searchTerm, $options:'i'}} , 
+             {description:{$regex:query.searchTerm, $options:'i'}} , 
+             {locations:{$regex:query.searchTerm, $options:'i'}} , 
+        ]
+    });
+
+
     const meta = await Tour.countDocuments();
 
     return {
         data,
-        meta
+        meta:{
+            total:meta,
+        }
     }
 }
 
