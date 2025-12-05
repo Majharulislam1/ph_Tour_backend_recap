@@ -2,6 +2,7 @@ import { CONFLICT, NOT_FOUND } from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
+import { tourSearchFields } from "./tour.constance";
 
 
 const createTour = async (payload: ITour) => {
@@ -32,18 +33,26 @@ const createTour = async (payload: ITour) => {
 
 const getAllTours = async (query:Record<string,string>) => {
  
+     const filter = query.location
      
+    
 
+    const searchQuery = {
+         $or:tourSearchFields.map(fields  =>  ({[fields]:{$regex:query.searchTerm, $options:'i'}}))
+    }
 
-    const data = await Tour.find({
-        //  title:{$regex:query.searchTerm, $options:'i'} single field search
+    const data = await Tour.find(searchQuery).find({location:filter});
 
-        $or:[
-             {title:{$regex:query.searchTerm, $options:'i'}} , 
-             {description:{$regex:query.searchTerm, $options:'i'}} , 
-             {locations:{$regex:query.searchTerm, $options:'i'}} , 
-        ]
-    });
+     //  title:{$regex:query.searchTerm, $options:'i'} single field search
+
+    
+         // multiple search query
+        // $or:[
+        //      {title:{$regex:query.searchTerm, $options:'i'}} , 
+        //      {description:{$regex:query.searchTerm, $options:'i'}} , 
+        //      {location:{$regex:query.searchTerm, $options:'i'}} , 
+        // ]
+
 
 
     const meta = await Tour.countDocuments();
