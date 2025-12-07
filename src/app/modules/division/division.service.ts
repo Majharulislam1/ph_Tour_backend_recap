@@ -41,7 +41,7 @@ const getAllDivisions = async()=>{
      }
 }
 
-
+ 
 
 
 const getSingleDivision = async (slug:string) =>{
