@@ -33,7 +33,7 @@ const getAllDivisions = catchAsync(async(req:Request,res:Response)=>{
 
 
 const getSingleDivision = catchAsync(async(req:Request,res:Response)=>{
-      const slug = req.params.slug,
+      const slug = req.params.slug
       const result = await DivisionService.getSingleDivision(slug);
       sendResponse(res,{
         statusCode: 200,

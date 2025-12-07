@@ -42,6 +42,8 @@ const getAllDivisions = async()=>{
 }
 
 
+
+
 const getSingleDivision = async (slug:string) =>{
       const division = await Division.findOne({slug});
       return {

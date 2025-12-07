@@ -3,6 +3,7 @@ import AppError from "../../errorHelpers/AppError";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
 import { tourSearchFields } from "./tour.constance";
+import { QueryBuilder } from "../../utils/QueryBuilder";
 
 
 const createTour = async (payload: ITour) => {
@@ -31,38 +32,64 @@ const createTour = async (payload: ITour) => {
 
 // getall tours
 
-const getAllTours = async (query:Record<string,string>) => {
+// const getAllTours = async (query:Record<string,string>) => {
  
-     const filter = query.location
+//      const filter = query.location;
+//      const searchTerm = query.searchTerm || "";
+//      const sort = query.sort;
      
+   
     
 
-    const searchQuery = {
-         $or:tourSearchFields.map(fields  =>  ({[fields]:{$regex:query.searchTerm, $options:'i'}}))
-    }
+//     const searchQuery = {
+//          $or:tourSearchFields.map(fields  =>  ({[fields]:{$regex:searchTerm, $options:'i'}}))
+//     }
 
-    const data = await Tour.find(searchQuery).find({location:filter});
+//     // const data = await Tour.find(searchQuery).find({location:filter}).sort('-title');
+//     const data = await Tour.find().sort(sort).select('title  location'); // it's working properly
 
-     //  title:{$regex:query.searchTerm, $options:'i'} single field search
+//     // .sort("location");
 
+//      //  title:{$regex:query.searchTerm, $options:'i'} single field search
     
-         // multiple search query
-        // $or:[
-        //      {title:{$regex:query.searchTerm, $options:'i'}} , 
-        //      {description:{$regex:query.searchTerm, $options:'i'}} , 
-        //      {location:{$regex:query.searchTerm, $options:'i'}} , 
-        // ]
+    
+//          // multiple search query
+//         // $or:[
+//         //      {title:{$regex:query.searchTerm, $options:'i'}} , 
+//         //      {description:{$regex:query.searchTerm, $options:'i'}} , 
+//         //      {location:{$regex:query.searchTerm, $options:'i'}} , 
+//         // ]
 
 
 
-    const meta = await Tour.countDocuments();
+//     const meta = await Tour.countDocuments();
 
-    return {
+//     return {
+//         data,
+//         meta:{
+//             total:meta,
+//         }
+//     }
+// }
+
+const getAllTours = async (query:Record<string,string>)=>{
+      const queryBuilder = new QueryBuilder(Tour.find(),query);
+      const tours = await queryBuilder
+               .search(tourSearchFields)
+               .filter()
+               .sort()
+               .fields()
+               .paginate()
+
+     const [data,meta] = await Promise.all([
+           tours.build(),
+           queryBuilder.getMeta()
+     ])
+
+     return {
         data,
-        meta:{
-            total:meta,
-        }
-    }
+        meta
+     }
 }
 
 
