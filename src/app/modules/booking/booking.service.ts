@@ -20,11 +20,14 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 
     const session = await Booking.startSession();
     session.startTransaction();
+    
 
     try {
         const user = await User.findById(userId);
 
-        if (!user?.phone || !user.address) {
+         
+
+        if (!user?.phone) {
             throw new AppError(BAD_REQUEST, "Please Update Your Profile to Book a Tour.")
         }
 
@@ -40,14 +43,14 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
              user:userId,
              status:BOOKING_STATUS.PENDING,
              ...payload,
-        }]);
+        }],{session});
 
          const payment = await Payment.create([{
             booking: booking[0]._id,
             status: PAYMENT_STATUS.UNPAID,
             transactionId: transactionId,
             amount: amount
-        }])
+        }],{session})
 
          const updatedBooking = await Booking
             .findByIdAndUpdate(
@@ -58,11 +61,16 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
             .populate("user", "name email phone address")
             .populate("tour", "title costFrom")
             .populate("payment");
+        
+        await session.commitTransaction(); //transaction
+        session.endSession()
 
         return updatedBooking
     }
     catch(error){
-        console.log(error);
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
     };
 
  }
@@ -74,5 +82,5 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 
  export const BookingService = {
      createBooking,
-     
+
  }
