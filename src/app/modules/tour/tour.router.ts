@@ -4,11 +4,12 @@ import { Role } from "../User/user.interface";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { createTourTypeZodSchema, createTourZodSchema, updateTourZodSchema } from "./tour.validation";
 import { TourController } from "./tour.controllers";
+import { multerUpload } from "../../config/multer.config";
 
 
 export const TourRouter = Router();
 
-TourRouter.post("/create",checkAuth(Role.ADMIN,Role.SUPER_ADMIN),validateRequest(createTourZodSchema),TourController.createTour)
+TourRouter.post("/create",checkAuth(Role.ADMIN,Role.SUPER_ADMIN), multerUpload.array("files") ,validateRequest(createTourZodSchema),TourController.createTour)
 
 TourRouter.get("/",TourController.getAllTours);
 
