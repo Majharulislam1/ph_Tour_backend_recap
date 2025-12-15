@@ -5,6 +5,7 @@ import { DivisionRouter } from "../modules/division/division.router";
 import { TourRouter } from "../modules/tour/tour.router";
 import { bookingRouter } from "../modules/booking/booking.routes";
 import { paymentRoute } from "../modules/payments/payment.route";
+import { OtpRouter } from "../modules/otp/otp.routes";
 
 export const router = Router();
 const modeuleRoute = [
@@ -28,6 +29,9 @@ const modeuleRoute = [
      },{
        path:"/payment",
        route:paymentRoute
+     },{
+       path:"/otp",
+       route:OtpRouter
      }
 ];
 
