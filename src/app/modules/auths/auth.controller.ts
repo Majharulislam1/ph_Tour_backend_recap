@@ -83,6 +83,22 @@ const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: N
 })
 
 
+const setPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const decodedToken = req.user as JwtPayload
+    const { password } = req.body;
+
+    await AuthService.setPassword(decodedToken.userId, password);
+
+    sendResponse(res, {
+        success: true,
+        statusCode:  OK,
+        message: "Password Changed Successfully",
+        data: null,
+    })
+})
+
+
 const logOut = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
      res.clearCookie("accessToken", {
@@ -153,5 +169,6 @@ export const AuthControllers = {
      getNewAccessToken,
      logOut,
      resetPassword,
-     googleCallBackController
+     googleCallBackController,
+     setPassword
 }

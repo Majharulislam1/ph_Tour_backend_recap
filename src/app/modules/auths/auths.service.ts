@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BAD_REQUEST, UNAUTHORIZED } from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
-import { IUser } from "../User/user.interface";
+import { IAuthProvider, IUser } from "../User/user.interface";
 import { User } from "../User/user.models";
 
 import bcrypt from "bcryptjs";
@@ -64,6 +64,38 @@ export const getNewAccessTokens = async (refreshToken: string) => {
 }
 
 
+const setPassword = async (userId: string, plainPassword: string) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new AppError(404, "User not found");
+    }
+
+    if (user.password && user.auths.some(providerObject => providerObject.provider === "google")) {
+        throw new AppError( BAD_REQUEST, "You have already set you password. Now you can change the password from your profile password update")
+    }
+
+    const hashedPassword = await bcrypt.hash(
+        plainPassword,
+        Number(envVars.BCRYPT_SALT_ROUND)
+    )
+
+    const credentialProvider: IAuthProvider = {
+        provider: "crediantials",
+        providerId: user.email
+    }
+
+    const auths: IAuthProvider[] = [...user.auths, credentialProvider]
+
+    user.password = hashedPassword
+
+    user.auths = auths
+
+    await user.save()
+
+}
+
+
 export const resetPasswordService = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
      const user = await User.findById(decodedToken.userId)
 
@@ -81,6 +113,7 @@ export const resetPasswordService = async (oldPassword: string, newPassword: str
 export const AuthService = {
      crediantialLogin,
      getNewAccessTokens,
-     resetPasswordService
+     resetPasswordService,
+     setPassword
    
 }
