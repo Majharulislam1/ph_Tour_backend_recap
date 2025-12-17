@@ -29,12 +29,20 @@ const createUserService = async (payload: Partial<IUser>) => {
 
 
 const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken: JwtPayload) => {
+    if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+        if (userId !== decodedToken.userId) {
+            throw new AppError(401, "You are not authorized")
+        }
+    }
+
     const ifUserExist = await User.findById(userId);
 
-     
-
     if (!ifUserExist) {
-        throw new AppError(NOT_FOUND, "User doesn't exist ")
+        throw new AppError(NOT_FOUND, "User Not Found")
+    }
+
+    if (decodedToken.role === Role.ADMIN && ifUserExist.role === Role.SUPER_ADMIN) {
+        throw new AppError(401, "You are not authorized")
     }
 
 
