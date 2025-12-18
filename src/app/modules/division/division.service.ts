@@ -2,6 +2,8 @@ import { BAD_REQUEST } from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { IDivision } from "./division.interface"
 import { Division } from "./division.model"
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { divisionSearchableFields } from "./division.conostant";
 
 
 
@@ -30,15 +32,25 @@ const createDivisionService = async (payload: IDivision) => {
     return division
 }
 
-const getAllDivisions = async()=>{
-     const division = await Division.find({});
-     const totalDivision = await Division.countDocuments();
-     return {
-         data:division,
-         meta:{
-             total:totalDivision
-         }
-     }
+const getAllDivisions = async(query: Record<string, string>)=>{
+      const queryBuilder = new QueryBuilder(Division.find(), query)
+
+    const divisionsData = queryBuilder
+        .search(divisionSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+
+    const [data, meta] = await Promise.all([
+        divisionsData.build(),
+        queryBuilder.getMeta()
+    ])
+
+    return {
+        data,
+        meta
+    }
 }
 
  

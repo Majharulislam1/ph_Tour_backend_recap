@@ -107,7 +107,7 @@ passport.use(
                      })
                 }
 
-                return done(null,user);
+                return done(null,isUserExist);
 
           } catch (error) {
                console.log("Google Strategy Error",error);

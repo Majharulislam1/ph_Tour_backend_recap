@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TourRouter = void 0;
+const express_1 = require("express");
+const checkAuth_1 = require("../../middlewares/checkAuth");
+const user_interface_1 = require("../User/user.interface");
+const validateRequest_1 = require("../../middlewares/validateRequest");
+const tour_validation_1 = require("./tour.validation");
+const tour_controllers_1 = require("./tour.controllers");
+const multer_config_1 = require("../../config/multer.config");
+exports.TourRouter = (0, express_1.Router)();
+exports.TourRouter.post("/create", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), multer_config_1.multerUpload.array("files"), (0, validateRequest_1.validateRequest)(tour_validation_1.createTourZodSchema), tour_controllers_1.TourController.createTour);
+exports.TourRouter.get("/", tour_controllers_1.TourController.getAllTours);
+exports.TourRouter.patch("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), (0, validateRequest_1.validateRequest)(tour_validation_1.updateTourZodSchema), tour_controllers_1.TourController.updateTour);
+exports.TourRouter.delete("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), tour_controllers_1.TourController.deleteTour);
+/************************* Tour type ********************************* */
+exports.TourRouter.post("/create-tour-type", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), (0, validateRequest_1.validateRequest)(tour_validation_1.createTourTypeZodSchema), tour_controllers_1.TourController.createTourType);
+exports.TourRouter.get('/tour-type', tour_controllers_1.TourController.getAllTourTypes);
+exports.TourRouter.patch('/tour-type/:id', (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), (0, validateRequest_1.validateRequest)(tour_validation_1.createTourTypeZodSchema), tour_controllers_1.TourController.updateTourType);
+exports.TourRouter.delete("/tour-type/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), tour_controllers_1.TourController.deleteTourType);
