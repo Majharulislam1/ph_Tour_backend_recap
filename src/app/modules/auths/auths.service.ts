@@ -23,7 +23,10 @@ const crediantialLogin = async (payload: Partial<IUser>) => {
 
      if (!isUserExist) {
           throw new AppError(BAD_REQUEST, "Email Does not exist");
+
      }
+
+     
 
      const iShashPassword = await bcrypt.compare(password as string, isUserExist.password as string);
 

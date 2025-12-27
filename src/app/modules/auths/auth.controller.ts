@@ -21,36 +21,54 @@ const crediantialController = catchAsync(async (req: Request, res: Response, nex
 
      // passport credentails
 
-     passport.authenticate("local", async (err: any, user: any, info: any) => {
-          if (err) {
-               return next(new AppError(401, info.message));
-          }
+   passport.authenticate("local", async (err: any, user: any, info: any) => {
 
-          if (!user) {
-               return next(new AppError(401, info.message));
-          }
+        if (err) {
 
-
-          const userTokens = await createUserTokens(user);
-
-          const { password: pass, ...rest } = user.toObject();
-
-          setAuthTokens(res, user);
+            // ❌❌❌❌❌
+            // throw new AppError(401, "Some error")
+            // next(err)
+            // return new AppError(401, err)
 
 
-          sendResponse(res, {
-               success: true,
-               statusCode: CREATED,
-               message: "User Successfully Login",
-               data: {
-                    accessToken: userTokens.accessToken,
-                    refreshToken: userTokens.refreshToken,
-                    user: rest
-               }
-          })
+            // ✅✅✅✅
+            // return next(err)
+            // console.log("from err");
+            return next(new AppError(401, err))
+        }
 
-          
-     })(req, res, next)
+        if (!user) {
+            // console.log("from !user");
+            // return new AppError(401, info.message)
+            return next(new AppError(401, info.message))
+        }
+
+        const userTokens = await createUserTokens(user)
+
+        // delete user.toObject().password
+
+        const { password: pass, ...rest } = user.toObject()
+
+
+        setAuthTokens(res, userTokens)
+
+        sendResponse(res, {
+            success: true,
+            statusCode: OK,
+            message: "User Logged In Successfully",
+            data: {
+                accessToken: userTokens.accessToken,
+                refreshToken: userTokens.refreshToken,
+                user: rest
+
+            },
+        })
+    })(req, res, next)
+
+
+
+
+     
 
 
 
